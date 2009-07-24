@@ -1,0 +1,8 @@
+lib/File/Slurp/Remote.pm
+lib/File/Slurp/Remote/SmartOpen.pm
+lib/Tie/Function/Examples.pm
+lib/File/Slurp/Remote/BrokenDNS.pm
+Makefile.PL
+MANIFEST			This list of files
+t/tiefunc.t
+META.yml                                 Module meta-data (added by MakeMaker)
