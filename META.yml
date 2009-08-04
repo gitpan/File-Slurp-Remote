@@ -1,14 +1,17 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         File-Slurp-Remote
-version:      0.3
-version_from: lib/Tie/Function/Examples.pm
-installdirs:  site
-requires:
+--- #YAML:1.0
+name:                File-Slurp-Remote
+version:             0.4
+abstract:            Easy read/write of remote files
+license:             ~
+author:              
+    - David Muir Sharnoff <muir@idiom.org>
+generated_by:        ExtUtils::MakeMaker version 6.42
+distribution_type:   module
+requires:     
     File::Slurp:                   0
     File::Temp:                    0
     Sys::Hostname::FQDN:           0
     Tie::Hash:                     0
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.30
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

@@ -14,25 +14,17 @@ our @ISA = qw(Exporter);
 our @EXPORT = (@File::Slurp::EXPORT, qw(write_remote_file read_remote_file));
 my $tmpdir = tempdir(CLEANUP => 1);
 
+our $scp = "scp -q -o StrictHostKeyChecking=no -o BatchMode=yes -o PasswordAuthentication=no";
+
 sub write_remote_file
 {
 	my $host = shift;
 	my $file = shift;
 
-	if ($myfqdn eq $fqdnify{$host}) {
-		write_file($file, @_);
-	} else {
-		write_file("$tmpdir/wrf$$", @_);
-		my $scp = "scp -q -o StrictHostKeyChecking=no -o BatchMode=yes $tmpdir/wrf$$ $host:$q_shell{$file} 2> $tmpdir/e$$";
-		system($scp);
-		my $ec = $? >> 8;
-		if ($ec) {
-			my $e = read_file("$tmpdir/e$$");
-			die "$scp: exit $ec\n$e";
-		}
-		unlink("$tmpdir/e$$");
-		unlink("$tmpdir/wrf$$");
-	}
+	my $fd;
+	smartopen("$host:$file", $fd, "w");
+	(print $fd @_) or die "write to $host:$file: $!";
+	close($fd) or die "close $host:$file: $!";
 }
 
 sub read_remote_file
@@ -40,20 +32,12 @@ sub read_remote_file
 	my $host = shift;
 	my $file = shift;
 
-	if ($myfqdn eq $fqdnify{$host}) {
-		if (wantarray) {
-			return (read_file($file));
-		} else {
-			return scalar(read_file($file));
-		}
+	my $fd;
+	smartopen("$host:$file", $fd, "r");
+	if (wantarray) {
+		return <$fd>;
 	} else {
-		my $fd;
-		smartopen("$host:$file", $fd, "r");
-		if (wantarray) {
-			return <$fd>;
-		} else {
-			return join('', <$fd>);
-		}
+		return join('', <$fd>);
 	}
 }
 
@@ -79,6 +63,11 @@ File::Slurp::Remote - read/write files on remote systems using ssh.
 
 This is similar to L<File::Slurp>, but it reads and writes files on
 remote systems using C<ssh> to get there.
+
+It uses ssh/scp to get to the remote systems.  You can override the copy
+command by redefining C<$File::Slurp::Remote::scp>.  You can override
+the remote shell command by redefining
+C<$File::Slurp::Remote::SmartOpen::ssh>.
 
 =head1 LICENSE
 

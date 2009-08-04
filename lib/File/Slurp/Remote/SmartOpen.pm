@@ -10,6 +10,8 @@ use Carp qw(confess);
 
 our @EXPORT = qw(smartopen);
 our @ISA = qw(Exporter);
+our $ssh = "ssh -o StrictHostKeyChecking=no -o BatchMode=yes -o PasswordAuthentication=no";
+our $VERSION = 0.2;
 
 sub smartopen($\$$)
 {
@@ -19,10 +21,10 @@ sub smartopen($\$$)
 	my $zip = '';
 	if ($file =~ /\.gz$/) {
 		$unzip = "zcat";
-		$zip = "|gzip";
+		$zip = "gzip";
 	} elsif ($file =~ /\.bz2$/) {
 		$unzip = "bzcat";
-		$zip = "bzip2|";
+		$zip = "bzip2";
 	}
 
 	my $pid;
@@ -32,19 +34,20 @@ sub smartopen($\$$)
 	if ($file =~ s/(.+):// && $fqdnify{$1} ne $myfqdn) {
 		my $host = $1;
 		$unzip = "|$unzip" if $unzip;
+		$zip = "$zip|" if $zip;
 		if ($mode && $mode eq 'w') {
 			my $cat = $q_shell{"cat > $q_shell{$file}"};
-			$pid = open $fd, "|$zip ssh -o StrictHostKeyChecking=no $q_shell{$host} $cat"
-				or confess "open |$zip ssh $q_shell{$host} $cat: $!";
+			$pid = open $fd, "|$zip $ssh $q_shell{$host} $cat"
+				or confess "open |$zip $ssh $q_shell{$host} $cat: $!";
 		} else {
-			$pid = open $fd, "ssh -o StrictHostKeyChecking=no -n $q_shell{$host} cat $q_shell{$file} $unzip|"
-				or confess "open ssh $q_shell{$host} cat $q_shell{$file} $unzip|: $!";
+			$pid = open $fd, "$ssh -n $q_shell{$host} cat $q_shell{$file} $unzip|"
+				or confess "open $ssh $q_shell{$host} cat $q_shell{$file} $unzip|: $!";
 		}
 	} else {
 		if ($mode && $mode eq 'w') {
 			if ($zip) {
-				$pid = open $fd, "$zip > $q_shell{$file}"
-					or die "open $zip > $q_shell{$file}: $!";
+				$pid = open $fd, "|$zip > $q_shell{$file}"
+					or die "open |$zip > $q_shell{$file}: $!";
 			} else {
 				open $fd, ">", $file
 					or die "open >$file: $!";
@@ -92,6 +95,12 @@ input (or output) though C<zcat> or C<bzcat> (C<gzip> or C<bzip2>) as
 it opens the file.
 
 The mode can be C<r> or C<w>.  It defaults to read.
+
+By default, remote files are accessed with
+
+ ssh -o StrictHostKeyChecking=no
+
+You can override that by redefining C<$File::Slurp::Remote::SmartOpen::ssh>.
 
 =head1 EXAMPLES
 
