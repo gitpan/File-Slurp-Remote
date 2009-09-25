@@ -47,7 +47,7 @@ __END__
 
 =head1 NAME
 
-File::Slurp::Remote - read/write files on remote systems using ssh.
+ File::Slurp::Remote - read/write files on remote systems using ssh.
 
 =head1 SYNOPSIS
 

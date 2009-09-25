@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                File-Slurp-Remote
-version:             0.4
+version:             0.41
 abstract:            Easy read/write of remote files
 license:             ~
 author:              
