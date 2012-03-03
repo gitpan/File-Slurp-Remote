@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               File-Slurp-Remote
-version:            0.43
+version:            0.44
 abstract:           Easy read/write of remote files
 author:
     - David Muir Sharnoff <muir@idiom.org>

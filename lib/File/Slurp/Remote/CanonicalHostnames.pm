@@ -23,6 +23,8 @@ sub canonicalize
 	return $fqdnify{$name};
 }
 
+1;
+
 __END__
 
 =head1 NAME
